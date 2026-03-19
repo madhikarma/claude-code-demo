@@ -63,7 +63,7 @@ Three-panel resizable layout (`react-resizable-panels`):
 
 ### Database
 
-Prisma + SQLite. Two models:
+Prisma + SQLite. Schema is defined in `prisma/schema.prisma` — reference it for data structure questions. Two models:
 - `User` — email/password (bcrypt)
 - `Project` — `messages` (JSON stringified chat history), `data` (JSON serialized VirtualFileSystem), optional `userId` (null = anonymous)
 
