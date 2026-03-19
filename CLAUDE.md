@@ -67,6 +67,20 @@ Prisma + SQLite. Two models:
 - `User` — email/password (bcrypt)
 - `Project` — `messages` (JSON stringified chat history), `data` (JSON serialized VirtualFileSystem), optional `userId` (null = anonymous)
 
+### Auth System
+
+Four-layer JWT auth with anonymous work preservation:
+
+- **`src/lib/auth.ts`** — Session layer. Signs/verifies HS256 JWTs via `jose`, stored as HTTP-only cookie (`auth-token`, 7-day expiry). `createSession` / `getSession` / `deleteSession` / `verifySession` (for middleware).
+
+- **`src/actions/index.ts`** — Server Actions. `signUp` hashes password with bcrypt (cost 10), creates `User`, calls `createSession`. `signIn` looks up user, compares password, calls `createSession`. Both return `{ success, error? }` — no redirect.
+
+- **`src/hooks/use-auth.ts`** — `useAuth` hook. Wraps server actions and owns post-auth navigation: if anonymous work exists (via `anon-work-tracker`), migrates it into a new project and redirects there; otherwise redirects to most recent project or creates a new one.
+
+- **`src/components/auth/AuthDialog.tsx`** — Modal dialog toggling between `SignInForm` and `SignUpForm`. Controlled via `defaultMode` prop, closes on success.
+
+Anonymous work (pre-auth activity) is captured by `src/lib/anon-work-tracker.ts` and migrated into the user's account on first sign-in/sign-up.
+
 ### Path Alias
 
 `@/*` maps to `src/*`.
